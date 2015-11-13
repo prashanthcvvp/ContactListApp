@@ -1,7 +1,10 @@
 
-app.controller('contactsController',['ContactsList','$scope','$log','$http',function(ContactsList,$scope,$log,$http){
+app.controller('contactsController',['ContactsList','$scope','$log','$http','$window',function(ContactsList,$scope,$log,$http,$window){
     var self =this;
     self.contact;
+    $scope.setTemp(true);
+    $log.info();
+    
     self.addContact=function(contact){
         ContactsList.addContact(contact);
         $scope.contact='';

@@ -1,33 +1,60 @@
 var express=require('express');
 var bodyParser=require('body-parser');
-var mongojs=require('mongojs');
+var pMongo=require('promised-mongo').compatible();
+var passwordHash = require('password-hash');
+var fs = require('fs');
+var https = require('https');
+var http = require('http');
+
 var app= express();
 
-db=mongojs('contactlist',['contactlist']);
+var PORT = 8000;
+var HOST = 'localhost';
+
+var options={
+    key:fs.readFileSync('public/certs/key.pem'),
+    cert: fs.readFileSync('public/certs/key-cert.pem')
+};
+
+server = https.createServer(options, app).listen(PORT, HOST);
 app.use(express.static(__dirname+'/public'));
 app.use(bodyParser.json());
-app.listen(3000);
+
+
+var DB ='ContactListApp';
+var db=pMongo(DB);
+var loginCollection = db.collection('login');
+
+
+ var dbColl = db.collection("prashanth");
+    
 
 
 ////////////////////////////////////////////////////////////////////////////////////
-// GET ALL CONTACTS /////////////////////////////////////////////////////////////////////////
+// GET ALL CONTACTS ////////////////////////////////////////////////////////////////
 
-app.get('/contacts',function(req,res){
-    db.contactlist.find(function(err, docs){
-        
+app.get('/contacts/:collection',function(req,res){
+    
+    var dbColl = db.collection(req.params.collection);
+    dbColl.find().then(function(docs){
         res.json(docs);
     });
 });
 ////////////////////////////////////////////////////////////////////////////////////
-// ADD /////////////////////////////////////////////////////////////////////////
+// ADD /////////////////////////////////////////////////////////////////////////////
 
-app.post('/contacts',function(req,res){
-    db.contactlist.insert(req.body,function(err,doc){
+app.post('/contacts/:collection',function(req,res){
+    
+    var dbColl = db.collection(req.params.collection);
+    dbColl.insert(req.body).then(function(doc){
         res.json(doc);
-    })
+    });
+   /* db.contactlist.insert(req.body,function(err,doc){
+        res.json(doc);
+    })*/
 });
 ////////////////////////////////////////////////////////////////////////////////////
-// DELETE /////////////////////////////////////////////////////////////////////////
+// DELETE //////////////////////////////////////////////////////////////////////////
 
 app.delete('/contacts/:id',function(req,res){
     db.contactlist.remove({_id:mongojs.ObjectId(req.params.id)},function(err,doc){
@@ -46,11 +73,29 @@ app.get('/contacts/:id',function(req,res){
 app.put('/contacts/:id',function(req,res){
     var id = req.params.id;
     db.contactlist.findAndModify({query:{_id:mongojs.ObjectId(id)},
-                                 update:{$set:{name:req.body.name,email:req.body.email,phone:req.body.phone}}},                             
+                                 update:{$set:{name:req.body.name,email:req.body.email,phone:req.body.phone}}},
                                     function(err,doc){                                    
                                     res.json(doc);
     });
 });
 ////////////////////////////////////////////////////////////////////////////////////
-
-console.log("Server running in 3000");
+app.post('/register',function(req,res){
+    req.body.password = passwordHash.generate(req.body.password);
+    req.body.collection = req.body.name;
+    loginCollection.insert(req.body).then(function(doc){
+        db.createCollection(req.body.collection);
+        res.json("success");
+    });
+    
+});
+////////////////////////////////////////////////////////////////////////////////////
+app.post('/login',function(req,res){
+    loginCollection.findOne({email:req.body.email}).then(function(doc){
+        if(passwordHash.verify(req.body.password,doc.password)===true){
+            res.json(doc);
+        }else if(passwordHash.verify(req.body.password,doc.password)===false){
+            res.json('Incorrect pasword');
+        }
+    });
+});
+console.log('Server listening on %s:%s', HOST, PORT);

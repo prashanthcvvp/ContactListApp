@@ -12,18 +12,47 @@
 
     </head>
     <body>
-        <div class="container">
-            <h1>Contact List App</h1><br>
-            <div class='btn-group'>
+        <div class="container" ng-controller="appController">
+            <nav class="navbar navbar-fixed-top">
+              <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                  </button>
+                </div>
+                  <div ng-show="temp">
+                      <form class="navbar-form navbar-right" role="search">
+                          <button type="submit" class="btn btn-primary">Logout</button>
+                    </form>
+                  </div>
+                </div>
+            </nav>
+            <nav class="navbar">
+              <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                  <a class="navbar-brand" href="#">
+                      <h1>Contact List App</h1>
+                    </a>
+                </div>
+                </div>
+            </nav>
+                <br>
+                
+           <!-- <div class='btn-group'>
                 <a href="#/" class='btn btn-default'>Main</a>
                 <a href="#/contacts" class='btn btn-default'>Contacts</a>
-            </div>
+            </div>-->
             <div ng-view></div>
             
         </div>
         <script src="https://code.angularjs.org/1.4.0-rc.2/angular.min.js"></script>
         <script src="https://code.angularjs.org/1.4.0-rc.1/angular-route.min.js"></script>
-        <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+        <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
         <!-- Latest compiled and minified JavaScript -->
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
         

@@ -1,8 +1,10 @@
 app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,filterFilter){
     var contactList=[];
     var self = this;
-    var refresh=function(){
-        $http.get('/contacts')
+    
+    self.collection;
+    self.refresh=function(){
+        $http.get('/contacts/'+self.collection)
             .success(function(response){
                 contactList=response;
             })
@@ -10,12 +12,13 @@ app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,fi
                 $log.info("Error");
         });
     };
-    refresh();
+    
     self.addContact=function(contact){
         
-        $http.post('/contacts',contact)
+        $http.post('/contacts/'+self.collection,contact)
         .success(function(res){
             contactList.push(res);
+            //self.refresh();
         }).error(function(){
             $log.error("Error!!");
         });

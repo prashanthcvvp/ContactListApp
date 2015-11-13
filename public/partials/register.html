@@ -1,1 +1,18 @@
-<h3>Register</h3>
+<div class='col-lg-6'>
+    <h3>Register</h3>
+    
+    
+    <form>
+        <label>Fullname</label>
+        <input type='text' class='form-control' ng-model="credential.name"/>
+
+        <label>Email</label>
+        <input type='email' class='form-control' ng-model="credential.email"/>
+
+        <label>Password</label>
+        <input type='password' class='form-control' ng-model="credential.password"/>
+
+        <a href='#/' class='btn btn-primary btn-lg' ng-click="register.addUser()">Submit</a>
+    </form>
+    
+</div>

@@ -6,7 +6,8 @@ module.exports =function(grunt){
                       'public/script/controllers/loginController.js',
                       'public/script/Services/services.js',
                       'public/script/controllers/ContactsController.js',
-                      'public/script/controllers/registerController.js'
+                      'public/script/controllers/registerController.js',
+                      'public/script/controllers/appController.js'
                      ],
                 dest: 'public/script/build.js',
             },

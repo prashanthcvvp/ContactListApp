@@ -18,20 +18,37 @@ app.config(['$routeProvider',function($routeProvider){
         .otherwise({
             redirectTo:'/'
         });
-}]);
-app.controller('loginController',['$http','$log','$scope',function($http,$log,$scope){
-    var self =this;
     
+    
+}]);
+app.controller('loginController',['$http','$log','$scope','$location','ContactsList','$rootScope',function($http,$log,$scope,$location,ContactsList,$rootScope){
+    var self =this;
+    self.invalid=false;   
+    $scope.setTemp(false);
     self.validate=function(){
-        console.log($scope.emailId);
-        console.log($scope.password);
+      $http.post('/login',$scope.login)
+        .success(function(res){
+          if((res.email!==undefined)&&($scope.login.email===res.email)){
+              ContactsList.collection=res.collection;
+              ContactsList.refresh();
+              $location.path('/contacts'); 
+          }else{
+              $scope.login.password='';
+              self.invalid=true;
+          }
+        }).error(function(){
+            $log.error("Error!!");
+        });
+       
     };
 }]);
 app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,filterFilter){
     var contactList=[];
     var self = this;
-    var refresh=function(){
-        $http.get('/contacts')
+    
+    self.collection;
+    self.refresh=function(){
+        $http.get('/contacts/'+self.collection)
             .success(function(response){
                 contactList=response;
             })
@@ -39,12 +56,13 @@ app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,fi
                 $log.info("Error");
         });
     };
-    refresh();
+    
     self.addContact=function(contact){
         
-        $http.post('/contacts',contact)
+        $http.post('/contacts/'+self.collection,contact)
         .success(function(res){
             contactList.push(res);
+            //self.refresh();
         }).error(function(){
             $log.error("Error!!");
         });
@@ -76,9 +94,12 @@ app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,fi
     
 }]);
 
-app.controller('contactsController',['ContactsList','$scope','$log','$http',function(ContactsList,$scope,$log,$http){
+app.controller('contactsController',['ContactsList','$scope','$log','$http','$window',function(ContactsList,$scope,$log,$http,$window){
     var self =this;
     self.contact;
+    $scope.setTemp(true);
+    $log.info();
+    
     self.addContact=function(contact){
         ContactsList.addContact(contact);
         $scope.contact='';
@@ -105,6 +126,24 @@ app.controller('contactsController',['ContactsList','$scope','$log','$http',func
     };
     
 }]);
-app.controller('registerController',function(){
+app.controller('registerController',['$http','$scope','$log',function($http,$scope,$log){
+    var self =this;
+    self.addUser=function(){        
+        $http.post('/register',$scope.credential)
+        .success(function(res){
+            console.log(res);
+        }).error(function(){
+            $log.error("Error!!");
+        });
+        $scope.credential="";
+        //contactList.push({name:name,email:email,phone:phone});
+    };
+}]);
+app.controller('appController',['$scope',function($scope){
+    $scope.temp=false;
+   // console.log($scope.temp);
     
-});
+    $scope.setTemp = function(val){
+        $scope.temp=val;
+    };
+}]);
