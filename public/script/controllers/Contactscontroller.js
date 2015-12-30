@@ -3,8 +3,7 @@ app.controller('contactsController',['ContactsList','$scope','$log','$http','$wi
     var self =this;
     self.contact;
     $scope.setTemp(true);
-    $log.info();
-    
+    ContactsList.refresh();
     self.addContact=function(contact){
         ContactsList.addContact(contact);
         $scope.contact='';

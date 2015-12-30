@@ -1,7 +1,10 @@
-var app = angular.module('ContactApp',['ngRoute']);
+var app = angular.module('ContactApp',['ngRoute','ngResource']);
 
-
-app.config(['$routeProvider',function($routeProvider){
+app.factory('serverConnect',['$resource',function($resource){
+    return $resource('/contacts/:collection');
+}]);
+app.config(['$routeProvider','$resourceProvider',function($routeProvider,$resourceProvider){
+     $resourceProvider.defaults.stripTrailingSlashes = false;
     $routeProvider
         .when('/',{
             templateUrl:'partials/login.html',
@@ -42,19 +45,27 @@ app.controller('loginController',['$http','$log','$scope','$location','ContactsL
        
     };
 }]);
-app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,filterFilter){
+app.service('ContactsList',['$http','$log','filterFilter','serverConnect','$location',function($http,$log,filterFilter,serverConnect,$location){
     var contactList=[];
     var self = this;
     
-    self.collection;
+    self.collection='';
     self.refresh=function(){
-        $http.get('/contacts/'+self.collection)
+        if(self.collection!=='') {
+            serverConnect.query({collection: self.collection}, function (data) {
+
+                contactList = data;
+            });
+        }else{
+            $location.path('/');
+        }
+        /*$http.get('/contacts/'+self.collection)
             .success(function(response){
                 contactList=response;
             })
             .error(function(){
                 $log.info("Error");
-        });
+        });*/
     };
     
     self.addContact=function(contact){
@@ -71,7 +82,6 @@ app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,fi
     
     self.getContacts=function(input){
         var array = filterFilter(contactList, input); 
-        $log.info("Array = "+ array);
         return array;
     };
     
@@ -98,8 +108,7 @@ app.controller('contactsController',['ContactsList','$scope','$log','$http','$wi
     var self =this;
     self.contact;
     $scope.setTemp(true);
-    $log.info();
-    
+    ContactsList.refresh();
     self.addContact=function(contact){
         ContactsList.addContact(contact);
         $scope.contact='';

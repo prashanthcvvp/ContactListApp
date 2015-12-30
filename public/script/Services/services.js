@@ -1,16 +1,24 @@
-app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,filterFilter){
+app.service('ContactsList',['$http','$log','filterFilter','serverConnect','$location',function($http,$log,filterFilter,serverConnect,$location){
     var contactList=[];
     var self = this;
     
-    self.collection;
+    self.collection='';
     self.refresh=function(){
-        $http.get('/contacts/'+self.collection)
+        if(self.collection!=='') {
+            serverConnect.query({collection: self.collection}, function (data) {
+
+                contactList = data;
+            });
+        }else{
+            $location.path('/');
+        }
+        /*$http.get('/contacts/'+self.collection)
             .success(function(response){
                 contactList=response;
             })
             .error(function(){
                 $log.info("Error");
-        });
+        });*/
     };
     
     self.addContact=function(contact){
@@ -27,7 +35,6 @@ app.service('ContactsList',['$http','$log','filterFilter',function($http,$log,fi
     
     self.getContacts=function(input){
         var array = filterFilter(contactList, input); 
-        $log.info("Array = "+ array);
         return array;
     };
     

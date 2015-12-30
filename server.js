@@ -34,7 +34,7 @@ var loginCollection = db.collection('login');
 // GET ALL CONTACTS ////////////////////////////////////////////////////////////////
 
 app.get('/contacts/:collection',function(req,res){
-    
+    console.log('Get Called '+req.params.collection);
     var dbColl = db.collection(req.params.collection);
     dbColl.find().then(function(docs){
         res.json(docs);
